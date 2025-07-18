@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import Link from "next/link";
 
 export default async function Page() {
     const supabase = await createClient();
@@ -22,7 +23,9 @@ export default async function Page() {
                 key={event.id}
                 className="border rounded-lg p-4 shadow hover:shadow-md transition"
             >
-                <h2 className="text-xl font-semibold">{event.title}</h2>
+                <Link href={`/events/${event.id}`}>
+                    <h2 className="text-xl font-semibold hover:underline">{event.title}</h2>
+                </Link>
                 <p className="text-gray-600 text-sm">
                 {new Date(event.eventTime).toLocaleString()}
                 </p>
