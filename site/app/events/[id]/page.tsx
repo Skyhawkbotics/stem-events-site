@@ -24,3 +24,8 @@ export default async function EventPage({ params }: { params: { id: string } }) 
         </div>
     );
 }
+
+export const metadata = {
+    title: "Event Details",
+    description: "Details of the selected event",
+};
