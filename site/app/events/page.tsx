@@ -3,7 +3,11 @@ import Link from "next/link";
 
 export default async function Page() {
     const supabase = await createClient();
-    const { data: events, error } = await supabase.from("events").select();
+    const { data: events, error } = await supabase
+        .from("events")
+        .select()
+        .order("eventTime", { ascending: true });
+
 
     if (error) {
         return <p className="text-red-500">Error fetching events: {error.message}</p>;
