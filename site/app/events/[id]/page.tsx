@@ -16,18 +16,16 @@ export default async function EventPage({ params }: { params: { id: string } }) 
     }
 
     return (
-        <main className="min-h-screen flex flex-col items-center">
-            <div className="flex-1 w-full flex flex-col gap-20 items-center">
-                <Navbar />
-                <div className="p-6 max-w-2xl mx-auto">
-                    <h1 className="text-3xl font-bold mb-2">{event.title}</h1>
-                    <p className="text-gray-600 text-sm mb-4">
-                        {new Date(event.eventTime).toLocaleString()}
-                    </p>
-                    <p>{event.description}</p>
-                </div>
+        <div>
+            <Navbar />
+            <div className="p-6 max-w-2xl mx-auto">
+                <h1 className="text-3xl font-bold mb-2">{event.title}</h1>
+                <p className="text-gray-600 text-sm mb-4">
+                    {new Date(event.eventTime).toLocaleString()}
+                </p>
+                <p>{event.description}</p>
             </div>
-        </main>
+        </div>
     );
 }
 

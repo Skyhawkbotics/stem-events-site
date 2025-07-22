@@ -19,8 +19,8 @@ export default async function Page() {
     }
 
     return (
-        <main className="min-h-screen flex flex-col items-center">
-            <div className="flex-1 w-full flex flex-col gap-20 items-center">
+        <main>
+            <div>
                 <Navbar />
                 <div className="p-6 max-w-3xl mx-auto">
                     <h1 className="text-3xl font-bold mb-6">Upcoming Events</h1>
