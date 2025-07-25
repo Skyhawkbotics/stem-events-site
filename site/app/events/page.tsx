@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
 import { Navbar } from "@/components/navbar";
+import { Footer } from "@/components/footer";
 
 export default async function Page() {
     const supabase = await createClient();
@@ -42,6 +43,7 @@ export default async function Page() {
                         ))}
                     </div>
                 </div>
+                <Footer />
             </div>
         </main>
     );

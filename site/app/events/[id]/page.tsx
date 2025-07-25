@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { notFound } from "next/navigation";
 import { Navbar } from "@/components/navbar";
+import { Footer } from "@/components/footer";
 
 export default async function EventPage({ params }: { params: { id: string } }) {
     const supabase = await createClient();
@@ -25,6 +26,7 @@ export default async function EventPage({ params }: { params: { id: string } }) 
                 </p>
                 <p>{event.description}</p>
             </div>
+            <Footer />
         </div>
     );
 }
