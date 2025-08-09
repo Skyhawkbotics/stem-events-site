@@ -35,3 +35,6 @@ export const metadata = {
     title: "Event Details",
     description: "Details of the selected event",
 };
+<p>Hi this is so fun</p>
+<p>Hi this is so fun</p>
+<p>Hi this is so fun</p>
