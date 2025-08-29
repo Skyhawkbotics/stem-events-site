@@ -11,7 +11,10 @@ export function Navbar() {
                 <div className="flex gap-5 items-center font-semibold">
                     <Link href={"/"} className="flex items-center gap-2">
                         <Image src="/favicon.ico" alt="logo" width={20} height={20} />
-                        FIRSTFinder.org
+                        <span className="font-semibold">
+                            <span style={{ color: 'var(--primary)' }}>FIRST</span>
+                            <span style={{ color: 'var(--secondary)' }}>Finder.org</span>
+                        </span>
                     </Link>
                     <Link href={"/events"}>Events List</Link>
                 </div>
