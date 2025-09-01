@@ -35,7 +35,9 @@ export default async function Page() {
                                     <h2 className="text-xl font-semibold hover:underline">{scrimmage.title}</h2>
                                 </Link>
                                 <p className="text-gray-600 text-sm">
-                                    {new Date(scrimmage.scrimmage_date).toLocaleString()}
+                                    {new Date(scrimmage.scrimmage_date).toLocaleString()}&emsp;&emsp;
+                                    {new String(scrimmage.location).toLocaleString()}&emsp;&emsp;
+                                    Teams: {new Number(scrimmage.number_teams).toLocaleString()}
                                 </p>
                                 <p className="mt-2">{scrimmage.scrimmage_description}</p>
                             </div>

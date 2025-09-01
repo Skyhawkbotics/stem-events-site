@@ -22,8 +22,8 @@ export default async function EventPage({ params }: { params: { id: string } }) 
             <div className="p-6 max-w-2xl mx-auto">
                 <h1 className="text-3xl font-bold mb-2">{scrimmage.title}</h1>
                 <p className="text-gray-600 text-sm mb-4">
-                    {new Date(scrimmage.scrimmage_date).toLocaleString()}&emsp;
-                    {new String(scrimmage.location).toLocaleString()}&emsp;
+                    {new Date(scrimmage.scrimmage_date).toLocaleString()}&emsp;&emsp;
+                    {new String(scrimmage.location).toLocaleString()}&emsp;&emsp;
                    Number of Teams: {new Number(scrimmage.number_teams).toLocaleString()}
                 </p>
                 <p>{scrimmage.scrimmage_description}</p>
