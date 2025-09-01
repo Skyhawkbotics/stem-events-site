@@ -16,6 +16,26 @@ export default async function Page() {
             .limit(1);
         
         console.log("Connection test:", { testData, testError });
+        
+        // Try a simple count
+        const { count, error: countError } = await supabase
+            .from("scrimmages")
+            .select("*", { count: 'exact', head: true });
+        
+        console.log("Count test:", { count, countError });
+        
+        // Test if we can access other tables
+        try {
+            const { data: eventsTest, error: eventsError } = await supabase
+                .from("events")
+                .select("*")
+                .limit(1);
+            
+            console.log("Events table test:", { eventsTest, eventsError });
+        } catch (eventsErr) {
+            console.log("Events table test failed:", eventsErr);
+        }
+        
     } catch (testErr) {
         console.error("Connection test failed:", testErr);
     }
