@@ -5,18 +5,63 @@ import { Footer } from "@/components/footer";
 
 export default async function Page() {
     const supabase = await createClient();
-    const { data: scrimmages, error } = await supabase
+    
+    console.log("Fetching scrimmages...");
+    
+    // Test the connection first
+    try {
+        const { data: testData, error: testError } = await supabase
+            .from("scrimmages")
+            .select("count")
+            .limit(1);
+        
+        console.log("Connection test:", { testData, testError });
+    } catch (testErr) {
+        console.error("Connection test failed:", testErr);
+    }
+    
+    // First try without ordering to see if that's the issue
+    let { data: scrimmages, error } = await supabase
         .from("scrimmages")
-        .select()
-        .order("scrimmage_date", { ascending: true });
+        .select("*");
 
+    console.log("Initial fetch response:", { scrimmages, error });
 
     if (error) {
-        return <p className="text-red-500">Error fetching events: {error.message}</p>;
+        console.error("Supabase error:", error);
+        return <p className="text-red-500">Error fetching scrimmages: {error.message}</p>;
     }
 
     if (!scrimmages || scrimmages.length === 0) {
-        return <p>No scrimmages found.</p>;
+        console.log("No scrimmages found in data");
+        return (
+            <div>
+                <Navbar />
+                <div className="p-6 max-w-3xl mx-auto">
+                    <h1 className="text-3xl font-bold mb-6">Upcoming Scrimmages</h1>
+                    <p>No scrimmages found.</p>
+                    <p className="text-sm text-gray-500 mt-2">Debug info: scrimmages = {JSON.stringify(scrimmages)}</p>
+                    <p className="text-sm text-gray-500">Error: {JSON.stringify(error)}</p>
+                </div>
+                <Footer />
+            </div>
+        );
+    }
+
+    // If we have data, try to order it
+    if (scrimmages.length > 0) {
+        try {
+            const { data: orderedScrimmages, error: orderError } = await supabase
+                .from("scrimmages")
+                .select("*")
+                .order("scrimmage_date", { ascending: true });
+            
+            if (!orderError && orderedScrimmages) {
+                scrimmages = orderedScrimmages;
+            }
+        } catch (orderErr) {
+            console.log("Ordering failed, using unordered data:", orderErr);
+        }
     }
 
     return (
