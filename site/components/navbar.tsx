@@ -10,6 +10,7 @@ export function Navbar() {
                 <div className="flex gap-5 items-center font-semibold">
                     <Link href={"/"}>STEM Events</Link>
                     <Link href={"/events"}>Events List</Link>
+                    <Link href={"/scrimmage"}>Scrimmages List</Link>
                 </div>
             {!hasEnvVars ? <EnvVarWarning /> : <AuthButton />}
             </div>
