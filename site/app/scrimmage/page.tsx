@@ -5,17 +5,17 @@ import { Footer } from "@/components/footer";
 
 export default async function Page() {
     const supabase = await createClient();
-    const { data: events, error } = await supabase
-        .from("events")
+    const { data: scrimmages, error } = await supabase
+        .from("scrimmages")
         .select()
-        .order("eventTime", { ascending: true });
+        .order("scrimmage_date", { ascending: true });
 
 
     if (error) {
         return <p className="text-red-500">Error fetching events: {error.message}</p>;
     }
 
-    if (!events || events.length === 0) {
+    if (!scrimmages || scrimmages.length === 0) {
         return <p>No scrimmages found.</p>;
     }
 
@@ -27,18 +27,18 @@ export default async function Page() {
                     <h1 className="text-3xl font-bold mb-6">Upcoming Scrimmages</h1>
 
                     <div className="space-y-4">
-                        {events.map((event) => (
+                        {scrimmages.map((scrimmage) => (
                             <div
-                                key={event.id}
+                                key={scrimmage.id}
                                 className="border rounded-lg p-4 shadow hover:shadow-md transition"
                             >
-                                <Link href={`/events/${event.id}`}>
-                                    <h2 className="text-xl font-semibold hover:underline">{event.title}</h2>
+                                <Link href={`/events/${scrimmage.id}`}>
+                                    <h2 className="text-xl font-semibold hover:underline">{scrimmage.title}</h2>
                                 </Link>
                                 <p className="text-gray-600 text-sm">
-                                    {new Date(event.eventTime).toLocaleString()}
+                                    {new Date(scrimmage.scrimmage_date).toLocaleString()}
                                 </p>
-                                <p className="mt-2">{event.description}</p>
+                                <p className="mt-2">{scrimmage.scrimmage_description}</p>
                             </div>
                         ))}
                     </div>
