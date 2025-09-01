@@ -32,7 +32,7 @@ export default async function Page() {
                                 key={scrimmage.id}
                                 className="border rounded-lg p-4 shadow hover:shadow-md transition"
                             >
-                                <Link href={`/events/${scrimmage.id}`}>
+                                <Link href={`/scrimmages/${scrimmage.id}`}>
                                     <h2 className="text-xl font-semibold hover:underline">{scrimmage.title}</h2>
                                 </Link>
                                 <p className="text-gray-600 text-sm">
