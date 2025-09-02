@@ -6,6 +6,10 @@ import AddScrimmage from "@/components/addScrimmage";
 
 export default async function Page() {
     const supabase = await createClient();
+    
+    // Get user authentication status
+    const { data: { user } } = await supabase.auth.getUser();
+    
     const { data: scrimmages, error } = await supabase
         .from("scrimmages")
         .select()
@@ -25,7 +29,11 @@ export default async function Page() {
                 <Navbar />
                 <div className="p-6 max-w-3xl mx-auto">
                     <h1 className="text-3xl font-bold mb-6">Upcoming Scrimmages</h1>
-                    <div className="mb-4"><AddScrimmage /></div>
+                    {user && (
+                        <div className="mb-4">
+                            <AddScrimmage />
+                        </div>
+                    )}
                     <div className="space-y-4">
                         {scrimmages.map((scrimmage) => (
                             <div
