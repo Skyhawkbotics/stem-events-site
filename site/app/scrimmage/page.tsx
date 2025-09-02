@@ -24,8 +24,7 @@ export default async function Page() {
             <div>
                 <Navbar />
                 <div className="p-6 max-w-3xl mx-auto">
-                    <h1 className="text-3xl font-bold mb-6">Upcoming Scrimmages</h1>
-                    <AddScrimmage />
+                    <h1 className="text-3xl font-bold mb-6">Upcoming Scrimmages</h1><AddScrimmage />
                     <div className="space-y-4">
                         {scrimmages.map((scrimmage) => (
                             <div
