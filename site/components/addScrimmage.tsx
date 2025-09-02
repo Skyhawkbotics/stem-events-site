@@ -103,7 +103,7 @@ export default function AddScrimmage() {
           setSuccess(null);
           closeModal();
           window.location.reload(); // Reload the page to update the main page
-        }, 2000);
+        }, 1000);
       }
     } catch (err) {
       console.error('Unexpected error:', err);
