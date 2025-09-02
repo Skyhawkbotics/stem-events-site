@@ -48,8 +48,8 @@ export async function NextEvent() {
 
     return (
         <div className="bg-gradient-to-br from-primary/5 to-secondary/5 rounded-lg p-5 shadow-lg transition-all duration-300 relative">
-            {/* Shadow gradient overlay */}
-            <div className="absolute inset-0 rounded-lg shadow-[0_0_20px_rgba(1,155,214,0.3),0_0_40px_rgba(238,28,37,0.2)] pointer-events-none"></div>
+            {/* Shadow gradient overlay - more obvious colors */}
+            <div className="absolute inset-0 rounded-lg shadow-[0_0_30px_var(--primary),0_0_60px_var(--secondary),inset_0_0_20px_var(--primary)] pointer-events-none opacity-40"></div>
             
             <div className="relative z-10">
                 <div className="flex items-center gap-3 mb-4">
@@ -60,7 +60,7 @@ export async function NextEvent() {
                 </div>
                 
                 <div className="space-y-3">
-                    <div>
+        <div>
                         <h3 className="text-base font-semibold text-foreground mb-1">{nextEvent.title}</h3>
                         <p className="text-sm text-muted-foreground leading-relaxed line-clamp-2">{nextEvent.description}</p>
                     </div>
