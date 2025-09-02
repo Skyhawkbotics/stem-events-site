@@ -1,6 +1,6 @@
 "use client";
 import { createClient } from "@/lib/supabase/client";
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 interface Scrimmage {
   id: string;
@@ -9,6 +9,7 @@ interface Scrimmage {
   date: string;
   location: string;
   created_at?: string;
+  scrimmage_owner?: string;
 }
 
 export default function AddScrimmage() {
@@ -20,11 +21,30 @@ export default function AddScrimmage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 
   // Initialize Supabase client
   const supabase = createClient();
 
+  // Get current user ID when component mounts
+  useEffect(() => {
+    const getUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        setCurrentUserId(user.id);
+      }
+    };
+    
+    getUser();
+  }, [supabase.auth]);
+
   const openModal = () => {
+    // Check if user is authenticated before opening modal
+    if (!currentUserId) {
+      setError('You must be logged in to create a scrimmage');
+      return;
+    }
+    
     setIsModalOpen(true);
     setError(null);
     setSuccess(null);
@@ -47,6 +67,11 @@ export default function AddScrimmage() {
       return;
     }
 
+    if (!currentUserId) {
+      setError('You must be logged in to create a scrimmage');
+      return;
+    }
+
     try {
       setIsLoading(true);
       setError(null);
@@ -58,7 +83,8 @@ export default function AddScrimmage() {
           title: title.trim(), 
           scrimmage_description: scrimmage_description.trim(),
           scrimmage_date: scrimmage_date.trim(),
-          location: location.trim()
+          location: location.trim(),
+          scrimmage_owner: currentUserId
         }])
         .select();
 
@@ -91,12 +117,24 @@ export default function AddScrimmage() {
 
   return (
     <>
+      {/* Authentication Status */}
+      {!currentUserId && (
+        <div className="mb-3 text-sm text-gray-600 dark:text-gray-400">
+          Please log in to create scrimmages
+        </div>
+      )}
+      
       {/* Add Scrimmage Button */}
       <button
         onClick={openModal}
-        className="bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
+        disabled={!currentUserId}
+        className={`py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors ${
+          currentUserId 
+            ? 'bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500' 
+            : 'bg-gray-400 text-gray-200 cursor-not-allowed'
+        }`}
       >
-        Add Scrimmage
+        {currentUserId ? 'Add Scrimmage' : 'Login to Add Scrimmage'}
       </button>
 
       {/* Modal */}
