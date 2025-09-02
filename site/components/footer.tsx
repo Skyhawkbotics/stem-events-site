@@ -2,7 +2,7 @@ import { ThemeSwitcher } from "@/components/theme-switcher";
 
 export function Footer() {
 	return (
-		<footer className="w-full flex items-center justify-center border-t mx-auto text-center text-xs gap-8 py-16">
+		<footer className="w-full flex items-center justify-center mx-auto text-center text-xs gap-8 py-16" style={{ borderTop: "1px solid var(--border)" }}>
 		<p>
 			Maintained by{" "}
 			<a
