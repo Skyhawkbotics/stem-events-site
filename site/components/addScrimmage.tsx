@@ -56,7 +56,7 @@ export default function AddScrimmage() {
         .from('scrimmages')
         .insert([{ 
           name: title.trim(), 
-          description: scrimmage_description.trim(),
+          scrimmage_description: scrimmage_description.trim(),
           scrimmage_date: scrimmage_date.trim(),
           location: location.trim()
         }])
