@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
+import AddScrimmage from "@/components/addScrimmage";
 
 export default async function Page() {
     const supabase = await createClient();
@@ -24,7 +25,7 @@ export default async function Page() {
                 <Navbar />
                 <div className="p-6 max-w-3xl mx-auto">
                     <h1 className="text-3xl font-bold mb-6">Upcoming Scrimmages</h1>
-
+                    <AddScrimmage />
                     <div className="space-y-4">
                         {scrimmages.map((scrimmage) => (
                             <div
