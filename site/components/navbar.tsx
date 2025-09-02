@@ -11,6 +11,7 @@ export function Navbar() {
                     <Link href={"/"}>STEM Events</Link>
                     <Link href={"/events"}>Events List</Link>
                     <Link href={"/scrimmage"}>Scrimmages List</Link>
+                    <Link href={"/dashboard"}>Dashboard</Link>
                 </div>
             {!hasEnvVars ? <EnvVarWarning /> : <AuthButton />}
             </div>
