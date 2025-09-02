@@ -6,7 +6,7 @@ export function Footer() {
 			borderTop: "1px solid var(--border)",
 			color: "#fff",
 			backgroundColor: "#000" }}>
-		<p>
+		<p style={{ color: "var(--hawkbot1cs-brand)" }}>
 			Maintained by{" "}
 			<a
 			href="https://www.hawkbot1cs.org"
