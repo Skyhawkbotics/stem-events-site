@@ -9,8 +9,7 @@ interface Event {
   date: string;
   location: string;
   created_at?: string;
-  scrimmage_owner?: string;
-  number_teams:string;
+  event_owner?: string;
 }
 
 //get rid of useless stuff here
@@ -19,6 +18,7 @@ export default function AddEvent() {
   const [title, setEventName] = useState('');
   const [description, setDescription] = useState('');
   const [eventTime, setDate] = useState('');
+  const [eventType, setEventType] = useState('workshop'); // Default event type
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
@@ -42,7 +42,7 @@ export default function AddEvent() {
   const openModal = () => {
     // Check if user is authenticated before opening modal
     if (!currentUserId) {
-      setError('You must be logged in to create a scrimmage');
+      setError('You must be logged in to create an event');
       return;
     }
     
@@ -58,6 +58,7 @@ export default function AddEvent() {
     setEventName('');
     setDescription('');
     setDate('');
+    setEventType('workshop'); // Reset to default
     setError(null);
     setSuccess(null);
   };
@@ -70,7 +71,7 @@ export default function AddEvent() {
     }
 
     if (!currentUserId) {
-      setError('You must be logged in to create a scrimmage');
+      setError('You must be logged in to create an event');
       return;
     }
 
@@ -80,11 +81,12 @@ export default function AddEvent() {
       setSuccess(null);
 //adjust all of these too
       const { data, error } = await supabase
-        .from('scrimmages')
+        .from('events')
         .insert([{ 
           title: title.trim(), 
           description: description.trim(),
           eventTime: eventTime.trim(),
+          event_type: eventType, // Add the missing event_type field
           event_owner: currentUserId,
         }])
         .select();
@@ -202,6 +204,27 @@ export default function AddEvent() {
                     rows={3}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                   />
+                </div>
+
+                <div>
+                  <label htmlFor="eventType" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Event Type *
+                  </label>
+                  <select
+                    id="eventType"
+                    value={eventType}
+                    onChange={(e) => setEventType(e.target.value)}
+                    disabled={isLoading}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                  >
+                    <option value="workshop">Workshop</option>
+                    <option value="competition">Competition</option>
+                    <option value="lecture">Lecture</option>
+                    <option value="hackathon">Hackathon</option>
+                    <option value="exhibition">Exhibition</option>
+                    <option value="networking">Networking</option>
+                    <option value="other">Other</option>
+                  </select>
                 </div>
 
                 <div>
