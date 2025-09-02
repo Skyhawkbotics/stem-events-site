@@ -1,18 +1,22 @@
 "use client";
 import { createClient } from "@/lib/supabase/client";
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 
 interface Scrimmage {
   id: string;
   name: string;
   description: string;
+  date: string;
+  location: string;
   created_at?: string;
 }
 
 export default function AddScrimmage() {
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [title, setScrimmageName] = useState('');
   const [scrimmage_description, setDescription] = useState('');
-  const [scrimmages, setScrimmages] = useState<Scrimmage[]>([]);
+  const [date, setDate] = useState('');
+  const [location, setLocation] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
@@ -20,34 +24,26 @@ export default function AddScrimmage() {
   // Initialize Supabase client
   const supabase = createClient();
 
-  // Fetch existing events on load
-  useEffect(() => {
-    fetchScrimmages();
-  }, []);
+  const openModal = () => {
+    setIsModalOpen(true);
+    setError(null);
+    setSuccess(null);
+  };
 
-  const fetchScrimmages = async () => {
-    try {
-      setIsLoading(true);
-      setError(null);
-      const { data, error } = await supabase.from('scrimmages').select('*').order('created_at', { ascending: false });
-      
-      if (error) {
-        console.error('Error fetching scrimmages:', error.message);
-        setError('Failed to fetch scrimmages: ' + error.message);
-      } else {
-        setScrimmages(data || []);
-      }
-    } catch (err) {
-      console.error('Unexpected error:', err);
-      setError('An unexpected error occurred while fetching scrimmages');
-    } finally {
-      setIsLoading(false);
-    }
+  const closeModal = () => {
+    setIsModalOpen(false);
+    // Reset form fields
+    setScrimmageName('');
+    setDescription('');
+    setDate('');
+    setLocation('');
+    setError(null);
+    setSuccess(null);
   };
 
   const handleAddScrimmage = async () => {
-    if (!title.trim() || !scrimmage_description.trim()) {
-      setError('Please fill in both scrimmage name and description');
+    if (!title.trim() || !scrimmage_description.trim() || !date.trim() || !location.trim()) {
+      setError('Please fill in all fields');
       return;
     }
 
@@ -58,23 +54,25 @@ export default function AddScrimmage() {
 
       const { data, error } = await supabase
         .from('scrimmages')
-        .insert([{ name: title.trim(), description: scrimmage_description.trim() }])
+        .insert([{ 
+          name: title.trim(), 
+          description: scrimmage_description.trim(),
+          date: date.trim(),
+          location: location.trim()
+        }])
         .select();
 
       if (error) {
         console.error('Error adding scrimmage:', error.message);
         setError('Failed to add scrimmage: ' + error.message);
       } else {
-        // Update UI with the new event
-        if (data && data.length > 0) {
-          setScrimmages((prev) => [data[0], ...prev]);
-        }
-        setScrimmageName('');
-        setDescription('');
         setSuccess('Scrimmage added successfully!');
         
-        // Clear success message after 3 seconds
-        setTimeout(() => setSuccess(null), 3000);
+        // Clear success message after 2 seconds and close modal
+        setTimeout(() => {
+          setSuccess(null);
+          closeModal();
+        }, 2000);
       }
     } catch (err) {
       console.error('Unexpected error:', err);
@@ -91,94 +89,131 @@ export default function AddScrimmage() {
   };
 
   return (
-    <div className="max-w-2xl mx-auto p-6 space-y-6">
-      <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Add New Scrimmage</h2>
-      
-      {/* Error Message */}
-      {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md">
-          {error}
-        </div>
-      )}
-      
-      {/* Success Message */}
-      {success && (
-        <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-md">
-          {success}
-        </div>
-      )}
+    <>
+      {/* Add Scrimmage Button */}
+      <button
+        onClick={openModal}
+        className="bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
+      >
+        Add Scrimmage
+      </button>
 
-      {/* Form */}
-      <div className="space-y-4">
-        <div>
-          <label htmlFor="scrimmageName" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Scrimmage Name
-          </label>
-          <input
-            id="scrimmageName"
-            type="text"
-            placeholder="Enter scrimmage name"
-            value={title}
-            onChange={(e) => setScrimmageName(e.target.value)}
-            onKeyPress={handleKeyPress}
-            disabled={isLoading}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50"
-          />
-        </div>
-        
-        <div>
-          <label htmlFor="description" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Scrimmage Description
-          </label>
-          <textarea
-            id="description"
-            placeholder="Enter scrimmage description"
-            value={scrimmage_description}
-            onChange={(e) => setDescription(e.target.value)}
-            onKeyPress={handleKeyPress}
-            disabled={isLoading}
-            rows={3}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50"
-          />
-        </div>
-        
-        <button 
-          onClick={handleAddScrimmage}
-          disabled={isLoading || !title.trim() || !scrimmage_description.trim()}
-          className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {isLoading ? 'Adding Scrimmage...' : 'Add Scrimmage'}
-        </button>
-      </div>
-
-      {/* Events List */}
-      <div>
-        <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">Scrimmages List</h3>
-        
-        {isLoading && scrimmages.length === 0 ? (
-          <div className="text-center py-8 text-gray-500">Loading scrimmages...</div>
-        ) : scrimmages.length === 0 ? (
-          <div className="text-center py-8 text-gray-500">No scrimmages found. Add your first scrimmage above!</div>
-        ) : (
-          <ul className="space-y-3">
-            {scrimmages.map((scrimmage) => (
-              <li key={scrimmage.id} className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <strong className="text-gray-900 dark:text-white">{scrimmage.name}</strong>
-                    <p className="text-gray-600 dark:text-gray-400 mt-1">{scrimmage.description}</p>
-                  </div>
-                  {scrimmage.created_at && (
-                    <span className="text-xs text-gray-400">
-                      {new Date(scrimmage.created_at).toLocaleDateString()}
-                    </span>
-                  )}
+      {/* Modal */}
+      {isModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-bold text-gray-900 dark:text-white">Add New Scrimmage</h2>
+                <button
+                  onClick={closeModal}
+                  className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+              
+              {/* Error Message */}
+              {error && (
+                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md mb-4">
+                  {error}
                 </div>
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
-    </div>
+              )}
+              
+              {/* Success Message */}
+              {success && (
+                <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-md mb-4">
+                  {success}
+                </div>
+              )}
+
+              {/* Form */}
+              <div className="space-y-4">
+                <div>
+                  <label htmlFor="scrimmageName" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Scrimmage Name *
+                  </label>
+                  <input
+                    id="scrimmageName"
+                    type="text"
+                    placeholder="Enter scrimmage name"
+                    value={title}
+                    onChange={(e) => setScrimmageName(e.target.value)}
+                    onKeyPress={handleKeyPress}
+                    disabled={isLoading}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                  />
+                </div>
+                
+                <div>
+                  <label htmlFor="description" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Description *
+                  </label>
+                  <textarea
+                    id="description"
+                    placeholder="Enter scrimmage description"
+                    value={scrimmage_description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    onKeyPress={handleKeyPress}
+                    disabled={isLoading}
+                    rows={3}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="date" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Date *
+                  </label>
+                  <input
+                    id="date"
+                    type="date"
+                    value={date}
+                    onChange={(e) => setDate(e.target.value)}
+                    disabled={isLoading}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="location" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Location *
+                  </label>
+                  <input
+                    id="location"
+                    type="text"
+                    placeholder="Enter scrimmage location"
+                    value={location}
+                    onChange={(e) => setLocation(e.target.value)}
+                    onKeyPress={handleKeyPress}
+                    disabled={isLoading}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                  />
+                </div>
+                
+                <div className="flex space-x-3 pt-4">
+                  <button 
+                    onClick={closeModal}
+                    disabled={isLoading}
+                    className="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed dark:bg-gray-600 dark:text-gray-200 dark:hover:bg-gray-500"
+                  >
+                    Cancel
+                  </button>
+                  <button 
+                    onClick={handleAddScrimmage}
+                    disabled={isLoading || !title.trim() || !scrimmage_description.trim() || !date.trim() || !location.trim()}
+                    className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isLoading ? 'Adding...' : 'Add Scrimmage'}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }
