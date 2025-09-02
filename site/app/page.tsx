@@ -17,7 +17,17 @@ export default function Home() {
         <Navbar />
         <div className="flex-1 flex flex-col gap-4 max-w-5xl p-5">
           <Hero />
-          <NextEvent />
+          
+          {/* Subtitle section */}
+          <div className="text-center max-w-2xl mx-auto -mt-2">
+            <p className="text-lg text-muted-foreground leading-relaxed">
+              Are you looking for a STEM event near you? Are you a FIRST Tech Challenge team looking for events to attend? Discover scrimmages, science fairs, and more STEM events happening near you. Connect with like-minded enthusiasts and never miss an opportunity.
+            </p>
+          </div>
+          
+          <div className="mt-8">
+            <NextEvent />
+          </div>
         </div>
 
         <Footer />
