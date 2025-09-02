@@ -9,6 +9,7 @@ export function Navbar() {
             <div className="w-full max-w-5xl flex justify-between items-center p-3 px-5 text-sm">
                 <div className="flex gap-5 items-center font-semibold">
                     <Link href={"/"}>STEM Events</Link>
+                    <Link href={"/dashboard"}>Dashboard</Link>
                     <Link href={"/events"}>Events List</Link>
                     <Link href={"/scrimmage"}>Scrimmages List</Link>
                 </div>
