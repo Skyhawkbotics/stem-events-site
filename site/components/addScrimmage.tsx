@@ -15,7 +15,7 @@ export default function AddScrimmage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [title, setScrimmageName] = useState('');
   const [scrimmage_description, setDescription] = useState('');
-  const [date, setDate] = useState('');
+  const [scrimmage_date, setDate] = useState('');
   const [location, setLocation] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -42,7 +42,7 @@ export default function AddScrimmage() {
   };
 
   const handleAddScrimmage = async () => {
-    if (!title.trim() || !scrimmage_description.trim() || !date.trim() || !location.trim()) {
+    if (!title.trim() || !scrimmage_description.trim() || !scrimmage_date.trim() || !location.trim()) {
       setError('Please fill in all fields');
       return;
     }
@@ -57,7 +57,7 @@ export default function AddScrimmage() {
         .insert([{ 
           name: title.trim(), 
           description: scrimmage_description.trim(),
-          date: date.trim(),
+          date: scrimmage_date.trim(),
           location: location.trim()
         }])
         .select();
@@ -170,7 +170,7 @@ export default function AddScrimmage() {
                   <input
                     id="date"
                     type="date"
-                    value={date}
+                    value={scrimmage_date}
                     onChange={(e) => setDate(e.target.value)}
                     disabled={isLoading}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
@@ -203,7 +203,7 @@ export default function AddScrimmage() {
                   </button>
                   <button 
                     onClick={handleAddScrimmage}
-                    disabled={isLoading || !title.trim() || !scrimmage_description.trim() || !date.trim() || !location.trim()}
+                    disabled={isLoading || !title.trim() || !scrimmage_description.trim() || !scrimmage_date.trim() || !location.trim()}
                     className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {isLoading ? 'Adding...' : 'Add Scrimmage'}
