@@ -57,7 +57,7 @@ export default function AddScrimmage() {
         .insert([{ 
           name: title.trim(), 
           description: scrimmage_description.trim(),
-          date: scrimmage_date.trim(),
+          scrimmage_date: scrimmage_date.trim(),
           location: location.trim()
         }])
         .select();
