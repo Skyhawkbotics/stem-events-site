@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
+import AddEvent from "@/components/addEvent";
 
 export default async function Page() {
     const supabase = await createClient();
@@ -19,13 +20,19 @@ export default async function Page() {
         return <p>No events found.</p>;
     }
 
+    const { data: { user } } = await supabase.auth.getUser();    
+
     return (
         <main>
             <div>
                 <Navbar />
                 <div className="p-6 max-w-3xl mx-auto">
                     <h1 className="text-3xl font-bold mb-6">Upcoming Events</h1>
-
+                    {user && (
+                        <div className="mb-4">
+                            < AddEvent/>
+                       </div>
+                    )}
                     <div className="space-y-4">
                         {events.map((event) => (
                             <div
