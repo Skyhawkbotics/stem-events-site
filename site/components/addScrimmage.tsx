@@ -55,7 +55,7 @@ export default function AddScrimmage() {
       const { data, error } = await supabase
         .from('scrimmages')
         .insert([{ 
-          name: title.trim(), 
+          title: title.trim(), 
           scrimmage_description: scrimmage_description.trim(),
           scrimmage_date: scrimmage_date.trim(),
           location: location.trim()
