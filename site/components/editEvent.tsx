@@ -34,6 +34,13 @@ export default function EditEvent({ event, isOpen, onClose, onEventUpdated }: Ed
   // Initialize Supabase client
   const supabase = createClient();
 
+  // Check if event is in the past
+  const isEventPast = () => {
+    const eventDate = new Date(event.eventTime);
+    const now = new Date();
+    return eventDate < now;
+  };
+
   // Get current user ID when component mounts
   useEffect(() => {
     const getUser = async () => {
@@ -65,6 +72,11 @@ export default function EditEvent({ event, isOpen, onClose, onEventUpdated }: Ed
 
     if (!currentUserId) {
       setError('You must be logged in to edit an event');
+      return;
+    }
+
+    if (isEventPast()) {
+      setError('Cannot edit past events');
       return;
     }
 
@@ -131,6 +143,13 @@ export default function EditEvent({ event, isOpen, onClose, onEventUpdated }: Ed
             </button>
           </div>
           
+          {/* Past Event Warning */}
+          {isEventPast() && (
+            <div className="bg-yellow-50 border border-yellow-200 text-yellow-700 px-4 py-3 rounded-md mb-4">
+              This event has already passed and cannot be edited.
+            </div>
+          )}
+          
           {/* Error Message */}
           {error && (
             <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md mb-4">
@@ -158,7 +177,7 @@ export default function EditEvent({ event, isOpen, onClose, onEventUpdated }: Ed
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 onKeyPress={handleKeyPress}
-                disabled={isLoading}
+                disabled={isLoading || isEventPast()}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 disabled:opacity-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
               />
             </div>
@@ -173,7 +192,7 @@ export default function EditEvent({ event, isOpen, onClose, onEventUpdated }: Ed
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 onKeyPress={handleKeyPress}
-                disabled={isLoading}
+                disabled={isLoading || isEventPast()}
                 rows={3}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 disabled:opacity-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
               />
@@ -187,7 +206,7 @@ export default function EditEvent({ event, isOpen, onClose, onEventUpdated }: Ed
                 id="editEventType"
                 value={eventType}
                 onChange={(e) => setEventType(e.target.value)}
-                disabled={isLoading}
+                disabled={isLoading || isEventPast()}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 disabled:opacity-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
               >
                 <option value="workshop">Workshop</option>
@@ -209,7 +228,7 @@ export default function EditEvent({ event, isOpen, onClose, onEventUpdated }: Ed
                 type="date"
                 value={eventTime}
                 onChange={(e) => setEventTime(e.target.value)}
-                disabled={isLoading}
+                disabled={isLoading || isEventPast()}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 disabled:opacity-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
               />
             </div>
@@ -225,7 +244,7 @@ export default function EditEvent({ event, isOpen, onClose, onEventUpdated }: Ed
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
                 onKeyPress={handleKeyPress}
-                disabled={isLoading}
+                disabled={isLoading || isEventPast()}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 disabled:opacity-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
               />
             </div>
@@ -240,7 +259,7 @@ export default function EditEvent({ event, isOpen, onClose, onEventUpdated }: Ed
               </button>
               <button 
                 onClick={handleUpdateEvent}
-                disabled={isLoading || !title.trim() || !description.trim() || !eventTime.trim()}
+                disabled={isLoading || !title.trim() || !description.trim() || !eventTime.trim() || isEventPast()}
                 className="flex-1 bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isLoading ? 'Updating...' : 'Update Event'}

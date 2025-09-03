@@ -4,6 +4,9 @@ import Link from "next/link";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import EditEvent from "@/components/editEvent";
+import EditScrimmage from "@/components/editScrimmage";
+import AddScrimmage from "@/components/addScrimmage";
+import AddEvent from "@/components/addEvent";
 
 interface Scrimmage {
   id: string;
@@ -36,6 +39,11 @@ interface DashboardContentProps {
 export default function DashboardContent({ ownedScrimmages, ownedEvents, userEmail }: DashboardContentProps) {
   const [editingEvent, setEditingEvent] = useState<Event | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editingScrimmage, setEditingScrimmage] = useState<Scrimmage | null>(null);
+  const [isEditScrimmageModalOpen, setIsEditScrimmageModalOpen] = useState(false);
+  const [isAddScrimmageModalOpen, setIsAddScrimmageModalOpen] = useState(false);
+  const [isAddEventModalOpen, setIsAddEventModalOpen] = useState(false);
+  const [hidePastItems, setHidePastItems] = useState(false);
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -70,6 +78,15 @@ export default function DashboardContent({ ownedScrimmages, ownedEvents, userEma
       : <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-300 dark:border-green-800">Event</Badge>;
   };
 
+  // Filter items based on hidePastItems state
+  const filteredScrimmages = hidePastItems 
+    ? ownedScrimmages?.filter(s => new Date(s.scrimmage_date) > new Date()) || []
+    : ownedScrimmages || [];
+  
+  const filteredEvents = hidePastItems 
+    ? ownedEvents?.filter(e => new Date(e.eventTime) > new Date()) || []
+    : ownedEvents || [];
+
   const totalItems = (ownedScrimmages?.length || 0) + (ownedEvents?.length || 0);
   const upcomingItems = (ownedScrimmages?.filter(s => new Date(s.scrimmage_date) > new Date()).length || 0) + 
                        (ownedEvents?.filter(e => new Date(e.eventTime) > new Date()).length || 0);
@@ -87,6 +104,47 @@ export default function DashboardContent({ ownedScrimmages, ownedEvents, userEma
   };
 
   const handleEventUpdated = () => {
+    // Refresh the page to show updated data
+    window.location.reload();
+  };
+
+  const handleEditScrimmage = (scrimmage: Scrimmage) => {
+    setEditingScrimmage(scrimmage);
+    setIsEditScrimmageModalOpen(true);
+  };
+
+  const handleCloseEditScrimmageModal = () => {
+    setIsEditScrimmageModalOpen(false);
+    setEditingScrimmage(null);
+  };
+
+  const handleScrimmageUpdated = () => {
+    // Refresh the page to show updated data
+    window.location.reload();
+  };
+
+  const handleScrimmageAdded = () => {
+    // Refresh the page to show updated data
+    window.location.reload();
+  };
+
+  const handleAddScrimmageModalOpen = () => {
+    setIsAddScrimmageModalOpen(true);
+  };
+
+  const handleCloseAddScrimmageModal = () => {
+    setIsAddScrimmageModalOpen(false);
+  };
+
+  const handleAddEventModalOpen = () => {
+    setIsAddEventModalOpen(true);
+  };
+
+  const handleCloseAddEventModal = () => {
+    setIsAddEventModalOpen(false);
+  };
+
+  const handleEventAdded = () => {
     // Refresh the page to show updated data
     window.location.reload();
   };
@@ -162,32 +220,48 @@ export default function DashboardContent({ ownedScrimmages, ownedEvents, userEma
         {/* Unified Content Section */}
         <div className="mb-8">
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">
-              My Content
-            </h2>
+            <div className="flex items-center gap-4">
+              <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">
+                My Content
+              </h2>
+              <button
+                onClick={() => setHidePastItems(!hidePastItems)}
+                className={`inline-flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors ${
+                  hidePastItems
+                    ? 'bg-green-100 text-green-700 hover:bg-green-200 dark:bg-green-900 dark:text-green-300 dark:hover:bg-green-800'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'
+                }`}
+              >
+                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+                {hidePastItems ? 'Show Past Items' : 'Hide Past Items'}
+              </button>
+            </div>
             <div className="flex gap-3">
-              <Link
-                href="/scrimmage"
+              <button
+                onClick={handleAddScrimmageModalOpen}
                 className="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
               >
                 <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                 </svg>
                 Create Scrimmage
-              </Link>
-              <Link
-                href="/events"
+              </button>
+              <button
+                onClick={handleAddEventModalOpen}
                 className="inline-flex items-center px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors"
               >
                 <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                 </svg>
                 Create Event
-              </Link>
+              </button>
             </div>
           </div>
 
-          {totalItems === 0 ? (
+          {(filteredScrimmages.length === 0 && filteredEvents.length === 0) ? (
             <Card>
               <CardContent className="pt-6">
                 <div className="text-center py-12">
@@ -197,41 +271,58 @@ export default function DashboardContent({ ownedScrimmages, ownedEvents, userEma
                     </svg>
                   </div>
                   <h3 className="mt-2 text-lg font-medium text-gray-900 dark:text-white">
-                    No content yet
+                    {hidePastItems ? 'No upcoming content' : 'No content yet'}
                   </h3>
                   <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                    Get started by creating your first scrimmage or event.
+                    {hidePastItems 
+                      ? 'All your scrimmages and events are in the past. Toggle to show past items or create new ones.'
+                      : 'Get started by creating your first scrimmage or event.'
+                    }
                   </p>
                   <div className="mt-6 flex gap-3 justify-center">
-                    <Link
-                      href="/scrimmage"
+                    <button
+                      onClick={handleAddScrimmageModalOpen}
                       className="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
                     >
                       Create Scrimmage
-                    </Link>
-                    <Link
-                      href="/events"
+                    </button>
+                    <button
+                      onClick={handleAddEventModalOpen}
                       className="inline-flex items-center px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors"
                     >
                       Create Event
-                    </Link>
+                    </button>
                   </div>
+                  {hidePastItems && totalItems > 0 && (
+                    <div className="mt-4">
+                      <button
+                        onClick={() => setHidePastItems(false)}
+                        className="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
+                      >
+                        <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        </svg>
+                        Show Past Items
+                      </button>
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>
           ) : (
             <div className="space-y-6">
               {/* Scrimmages Section */}
-              {ownedScrimmages && ownedScrimmages.length > 0 && (
+              {filteredScrimmages && filteredScrimmages.length > 0 && (
                 <div>
                   <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4 flex items-center">
                     <svg className="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                     </svg>
-                    My Scrimmages ({ownedScrimmages.length})
+                    My Scrimmages ({filteredScrimmages.length})
                   </h3>
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                    {ownedScrimmages.map((scrimmage) => (
+                    {filteredScrimmages.map((scrimmage) => (
                       <Card key={`scrimmage-${scrimmage.id}`} className="hover:shadow-lg transition-shadow border-l-4 border-l-blue-500">
                         <CardHeader className="pb-3">
                           <div className="flex justify-between items-start">
@@ -275,7 +366,10 @@ export default function DashboardContent({ ownedScrimmages, ownedEvents, userEma
                             >
                               View Details
                             </Link>
-                            <button className="inline-flex items-center px-3 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600">
+                            <button 
+                              onClick={() => handleEditScrimmage(scrimmage)}
+                              className="inline-flex items-center px-3 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
+                            >
                               Edit
                             </button>
                           </div>
@@ -287,16 +381,16 @@ export default function DashboardContent({ ownedScrimmages, ownedEvents, userEma
               )}
 
               {/* Events Section */}
-              {ownedEvents && ownedEvents.length > 0 && (
+              {filteredEvents && filteredEvents.length > 0 && (
                 <div>
                   <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4 flex items-center">
                     <svg className="w-5 h-5 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                     </svg>
-                    My Events ({ownedEvents.length})
+                    My Events ({filteredEvents.length})
                   </h3>
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                    {ownedEvents.map((event) => (
+                    {filteredEvents.map((event) => (
                       <Card key={`event-${event.id}`} className="hover:shadow-lg transition-shadow border-l-4 border-l-green-500">
                         <CardHeader className="pb-3">
                           <div className="flex justify-between items-start">
@@ -368,9 +462,9 @@ export default function DashboardContent({ ownedScrimmages, ownedEvents, userEma
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <Link
-                href="/scrimmage"
-                className="flex items-center p-4 border border-blue-200 rounded-lg hover:bg-blue-50 dark:border-blue-700 dark:hover:bg-blue-900/20 transition-colors bg-white dark:bg-gray-800"
+              <button
+                onClick={handleAddScrimmageModalOpen}
+                className="flex items-center p-4 border border-blue-200 rounded-lg hover:bg-blue-50 dark:border-blue-700 dark:hover:bg-blue-900/20 transition-colors bg-white dark:bg-gray-800 w-full text-left"
               >
                 <div className="flex-shrink-0">
                   <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -381,11 +475,11 @@ export default function DashboardContent({ ownedScrimmages, ownedEvents, userEma
                   <p className="text-sm font-medium text-gray-900 dark:text-white">Create Scrimmage</p>
                   <p className="text-sm text-gray-500 dark:text-gray-400">Schedule a new scrimmage</p>
                 </div>
-              </Link>
+              </button>
               
-              <Link
-                href="/events"
-                className="flex items-center p-4 border border-green-200 rounded-lg hover:bg-green-50 dark:border-green-700 dark:hover:bg-green-900/20 transition-colors bg-white dark:bg-gray-800"
+              <button
+                onClick={handleAddEventModalOpen}
+                className="flex items-center p-4 border border-green-200 rounded-md hover:bg-green-50 dark:border-green-700 dark:hover:bg-green-900/20 transition-colors bg-white dark:bg-gray-800 w-full text-left"
               >
                 <div className="flex-shrink-0">
                   <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -396,7 +490,7 @@ export default function DashboardContent({ ownedScrimmages, ownedEvents, userEma
                   <p className="text-sm font-medium text-gray-900 dark:text-white">Create Event</p>
                   <p className="text-sm text-gray-500 dark:text-gray-400">Schedule a new STEM event</p>
                 </div>
-              </Link>
+              </button>
               
               <Link
                 href="/scrimmage"
@@ -424,6 +518,34 @@ export default function DashboardContent({ ownedScrimmages, ownedEvents, userEma
           isOpen={isEditModalOpen}
           onClose={handleCloseEditModal}
           onEventUpdated={handleEventUpdated}
+        />
+      )}
+
+      {/* Edit Scrimmage Modal */}
+      {editingScrimmage && (
+        <EditScrimmage
+          scrimmage={editingScrimmage}
+          isOpen={isEditScrimmageModalOpen}
+          onClose={handleCloseEditScrimmageModal}
+          onScrimmageUpdated={handleScrimmageUpdated}
+        />
+      )}
+
+      {/* Add Scrimmage Modal */}
+      {isAddScrimmageModalOpen && (
+        <AddScrimmage
+          isOpen={isAddScrimmageModalOpen}
+          onClose={handleCloseAddScrimmageModal}
+          onScrimmageAdded={handleScrimmageAdded}
+        />
+      )}
+
+      {/* Add Event Modal */}
+      {isAddEventModalOpen && (
+        <AddEvent
+          isOpen={isAddEventModalOpen}
+          onClose={handleCloseAddEventModal}
+          onEventAdded={handleEventAdded}
         />
       )}
     </>
