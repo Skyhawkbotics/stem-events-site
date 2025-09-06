@@ -19,8 +19,8 @@ END $$;
 
 -- Create scrimmage_registrations table with flexible foreign key handling
 CREATE TABLE IF NOT EXISTS scrimmage_registrations (
-    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-    scrimmage_id UUID NOT NULL,
+    id SERIAL PRIMARY KEY,
+    scrimmage_id INTEGER NOT NULL,
     team_name TEXT NOT NULL,
     team_contact TEXT NOT NULL,
     team_size INTEGER NOT NULL CHECK (team_size > 0 AND team_size <= 50),
@@ -42,7 +42,7 @@ BEGIN
         RAISE NOTICE 'Successfully added scrimmage_id foreign key constraint';
     EXCEPTION WHEN OTHERS THEN
         RAISE NOTICE 'Could not add scrimmage_id foreign key: %', SQLERRM;
-        RAISE NOTICE 'This might be due to column type mismatch. Check that scrimmages.id is UUID type.';
+        RAISE NOTICE 'This might be due to column type mismatch. Check that scrimmages.id is INTEGER type.';
     END;
 
     -- Try to add user_id foreign key

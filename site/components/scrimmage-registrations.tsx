@@ -15,7 +15,7 @@ interface ScrimmageRegistration {
 }
 
 interface ScrimmageRegistrationsProps {
-  scrimmageId: string;
+  scrimmageId: number;
   maxTeams: number;
   onRegistrationUpdate?: () => void;
 }
@@ -37,7 +37,6 @@ export default function ScrimmageRegistrations({ scrimmageId, maxTeams, onRegist
         fetchRegistrations();
       }
     };
-    
     getUser();
   }, [scrimmageId]);
 
@@ -47,7 +46,7 @@ export default function ScrimmageRegistrations({ scrimmageId, maxTeams, onRegist
       const { data, error } = await supabase
         .from('scrimmage_registrations')
         .select('*')
-        .eq('scrimmage_id', scrimmageId)
+        .eq('scrimmage_id', Number(scrimmageId))
         .order('created_at', { ascending: true });
 
       if (error) {

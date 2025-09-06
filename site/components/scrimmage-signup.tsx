@@ -15,7 +15,7 @@ interface ScrimmageRegistration {
 }
 
 interface ScrimmageSignupProps {
-  scrimmageId: string;
+  scrimmageId: number;
   maxTeams: number;
   onRegistrationUpdate?: () => void;
 }
@@ -53,7 +53,7 @@ export default function ScrimmageSignup({ scrimmageId, maxTeams, onRegistrationU
     const { data, error } = await supabase
       .from('scrimmage_registrations')
       .select('*')
-      .eq('scrimmage_id', scrimmageId)
+      .eq('scrimmage_id', Number(scrimmageId))
       .eq('user_id', userId)
       .single();
 
@@ -66,7 +66,7 @@ export default function ScrimmageSignup({ scrimmageId, maxTeams, onRegistrationU
     const { data, error } = await supabase
       .from('scrimmage_registrations')
       .select('*')
-      .eq('scrimmage_id', scrimmageId)
+      .eq('scrimmage_id', Number(scrimmageId))
       .eq('status', 'approved');
 
     if (data && !error) {
@@ -118,7 +118,8 @@ export default function ScrimmageSignup({ scrimmageId, maxTeams, onRegistrationU
     }
 
     // Validate scrimmageId format
-    if (!scrimmageId || scrimmageId.length < 10) {
+    const scrimIdNum = Number(scrimmageId);
+    if (!scrimmageId || isNaN(scrimIdNum)) {
       setError('Invalid scrimmage ID');
       return;
     }
@@ -128,9 +129,8 @@ export default function ScrimmageSignup({ scrimmageId, maxTeams, onRegistrationU
       setError(null);
       setSuccess(null);
 
-      // Debug: Log the data being sent
       const registrationData = {
-        scrimmage_id: scrimmageId,
+        scrimmage_id: scrimIdNum,
         team_name: teamName.trim(),
         team_contact: teamContact.trim(),
         team_size: teamSize,
@@ -138,6 +138,7 @@ export default function ScrimmageSignup({ scrimmageId, maxTeams, onRegistrationU
         status: 'pending',
         user_id: currentUserId
       };
+      // Extra debug info
       console.log('Attempting to insert registration:', registrationData);
 
       const { data, error } = await supabase
@@ -146,37 +147,28 @@ export default function ScrimmageSignup({ scrimmageId, maxTeams, onRegistrationU
         .select()
         .single();
 
-      console.log('Supabase response:', { data, error });
-
       if (error) {
-        console.error('Error signing up:', error);
-        // Better error message handling
+        console.error('Supabase insert error:', error, error.details, error.hint, error.code);
         let errorMessage = 'Failed to sign up';
-        if (error.message) {
-          errorMessage += ': ' + error.message;
-        } else if (error.details) {
-          errorMessage += ': ' + error.details;
-        } else if (error.hint) {
-          errorMessage += ': ' + error.hint;
-        } else if (error.code) {
-          errorMessage += ' (Error code: ' + error.code + ')';
-        }
+        if (error.message) errorMessage += ': ' + error.message;
+        if (error.details) errorMessage += ' Details: ' + error.details;
+        if (error.hint) errorMessage += ' Hint: ' + error.hint;
+        if (error.code) errorMessage += ' (Error code: ' + error.code + ')';
         setError(errorMessage);
+      } else if (!data) {
+        setError('No data returned from Supabase. Please try again.');
       } else {
         setSuccess('Successfully signed up for the scrimmage! Your registration is pending approval.');
         setExistingRegistration(data);
-        
         setTimeout(() => {
           setSuccess(null);
           closeModal();
-          if (onRegistrationUpdate) {
-            onRegistrationUpdate();
-          }
+          if (onRegistrationUpdate) onRegistrationUpdate();
         }, 2000);
       }
     } catch (err) {
       console.error('Unexpected error:', err);
-      setError('An unexpected error occurred while signing up');
+      setError('An unexpected error occurred while signing up: ' + (err instanceof Error ? err.message : String(err)));
     } finally {
       setIsLoading(false);
     }

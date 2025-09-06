@@ -15,7 +15,7 @@ export default async function EventPage({ params }: { params: { id: string } }) 
     const { data: scrimmage, error } = await supabase
     .from("scrimmages")
     .select("*")
-    .eq("id", params.id)
+    .eq("id", Number(params.id))
     .single();
 
     if (error || !scrimmage) {
@@ -26,7 +26,7 @@ export default async function EventPage({ params }: { params: { id: string } }) 
     const { data: approvedRegistrations } = await supabase
         .from("scrimmage_registrations")
         .select("id")
-        .eq("scrimmage_id", params.id)
+        .eq("scrimmage_id", Number(params.id))
         .eq("status", "approved");
 
     const approvedCount = approvedRegistrations?.length || 0;
@@ -73,7 +73,7 @@ export default async function EventPage({ params }: { params: { id: string } }) 
                         <div className="bg-white dark:bg-gray-800 border rounded-lg p-6">
                             <h2 className="text-xl font-semibold mb-4">Join This Scrimmage</h2>
                             <ScrimmageSignup 
-                                scrimmageId={params.id} 
+                                scrimmageId={Number(params.id)} 
                                 maxTeams={parseInt(scrimmage.number_teams)}
                             />
                         </div>
@@ -85,7 +85,7 @@ export default async function EventPage({ params }: { params: { id: string } }) 
                     <div className="bg-white dark:bg-gray-800 border rounded-lg p-6">
                         <h2 className="text-xl font-semibold mb-4">Manage Team Registrations</h2>
                         <ScrimmageRegistrations 
-                            scrimmageId={params.id} 
+                            scrimmageId={Number(params.id)} 
                             maxTeams={parseInt(scrimmage.number_teams)}
                         />
                     </div>
