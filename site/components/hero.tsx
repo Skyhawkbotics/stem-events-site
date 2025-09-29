@@ -2,7 +2,7 @@ import { BrandLogo } from "./brand-logo";
 
 export function Hero() {
   return (
-    <div className="flex flex-col gap-8 sm:gap-12 lg:gap-16 items-center">
+    <div className="flex flex-col gap-4 sm:gap-6 lg:gap-8 items-center">
       <h1 className="sr-only">FIRST Tech Challenge Scrimmages and Events</h1>
       <p className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl !leading-tight mx-auto max-w-xl text-center font-bold">This is</p>
       <div className="-mt-4 sm:-mt-6 lg:-mt-8">
@@ -19,7 +19,7 @@ export function Hero() {
       >
         The all in one FTC robotics scrimmage and event coordinator.
       </p>
-      <div className="w-full p-[1px] bg-gradient-to-r from-transparent via-foreground/10 to-transparent my-4 sm:my-6 lg:my-8" />
+      <div className="w-full p-[1px] bg-gradient-to-r from-transparent via-foreground/10 to-transparent my-2 sm:my-3 lg:my-4" />
     </div>
   );
 }
