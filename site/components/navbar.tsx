@@ -12,6 +12,7 @@ export function Navbar() {
                     <Link href={"/"} className="flex items-center gap-2">
                         <BrandLogo />
                     </Link>
+                    <Link href={"/dashboard"}>Dashboard</Link>
                     <Link href={"/events"}>Events List</Link>
                     <Link href={"/scrimmage"}>Scrimmages List</Link>
                 </div>

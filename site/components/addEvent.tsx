@@ -2,30 +2,30 @@
 import { createClient } from "@/lib/supabase/client";
 import { useState, useEffect } from 'react';
 
-interface Scrimmage {
+interface Event {
   id: string;
-  name: string;
+  title: string;
   description: string;
-  date: string;
-  location: string;
+  eventTime: string;
+  location?: string;
+  event_type?: string;
   created_at?: string;
-  scrimmage_owner?: string;
-  number_teams:string;
+  event_owner?: string;
 }
 
-interface AddScrimmageProps {
+interface AddEventProps {
   isOpen?: boolean;
   onClose?: () => void;
-  onScrimmageAdded?: () => void;
+  onEventAdded?: () => void;
 }
 
-export default function AddScrimmage({ isOpen, onClose, onScrimmageAdded }: AddScrimmageProps) {
+export default function AddEvent({ isOpen, onClose, onEventAdded }: AddEventProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [title, setScrimmageName] = useState('');
-  const [scrimmage_description, setDescription] = useState('');
-  const [scrimmage_date, setDate] = useState('');
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
+  const [eventTime, setEventTime] = useState('');
   const [location, setLocation] = useState('');
-  const [number_teams, setNumberTeams] = useState('');
+  const [eventType, setEventType] = useState('workshop');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
@@ -49,11 +49,11 @@ export default function AddScrimmage({ isOpen, onClose, onScrimmageAdded }: AddS
   // Reset form when modal opens (for dashboard modal)
   useEffect(() => {
     if (isOpen) {
-      setScrimmageName('');
+      setTitle('');
       setDescription('');
-      setDate('');
+      setEventTime('');
       setLocation('');
-      setNumberTeams('');
+      setEventType('workshop');
       setError(null);
       setSuccess(null);
     }
@@ -62,7 +62,7 @@ export default function AddScrimmage({ isOpen, onClose, onScrimmageAdded }: AddS
   const openModal = () => {
     // Check if user is authenticated before opening modal
     if (!currentUserId) {
-      setError('You must be logged in to create a scrimmage');
+      setError('You must be logged in to create an event');
       return;
     }
     
@@ -79,24 +79,24 @@ export default function AddScrimmage({ isOpen, onClose, onScrimmageAdded }: AddS
       // Standalone mode
       setIsModalOpen(false);
       // Reset form fields
-      setScrimmageName('');
+      setTitle('');
       setDescription('');
-      setDate('');
+      setEventTime('');
       setLocation('');
-      setNumberTeams('');
+      setEventType('workshop');
       setError(null);
       setSuccess(null);
     }
   };
 
-  const handleAddScrimmage = async () => {
-    if (!title.trim() || !scrimmage_description.trim() || !scrimmage_date.trim() || !location.trim()) {
-      setError('Please fill in all fields');
+  const handleAddEvent = async () => {
+    if (!title.trim() || !description.trim() || !eventTime.trim()) {
+      setError('Please fill in all required fields');
       return;
     }
 
     if (!currentUserId) {
-      setError('You must be logged in to create a scrimmage');
+      setError('You must be logged in to create an event');
       return;
     }
 
@@ -106,29 +106,29 @@ export default function AddScrimmage({ isOpen, onClose, onScrimmageAdded }: AddS
       setSuccess(null);
 
       const { data, error } = await supabase
-        .from('scrimmages')
+        .from('events')
         .insert([{ 
           title: title.trim(), 
-          scrimmage_description: scrimmage_description.trim(),
-          scrimmage_date: scrimmage_date.trim(),
-          location: location.trim(),
-          scrimmage_owner: currentUserId,
-          number_teams: number_teams.trim()
+          description: description.trim(),
+          eventTime: eventTime.trim(),
+          location: location.trim() || null,
+          event_type: eventType,
+          event_owner: currentUserId,
         }])
         .select();
 
       if (error) {
-        console.error('Error adding scrimmage:', error.message);
-        setError('Failed to add scrimmage: ' + error.message);
+        console.error('Error adding event:', error.message);
+        setError('Failed to add event: ' + error.message);
       } else {
-        setSuccess('Scrimmage added successfully!');
+        setSuccess('Event added successfully!');
         
         // Clear success message after 2 seconds, close modal, and refresh
         setTimeout(() => {
           setSuccess(null);
           closeModal();
-          if (onScrimmageAdded) {
-            onScrimmageAdded(); // Callback to refresh the dashboard
+          if (onEventAdded) {
+            onEventAdded(); // Callback to refresh the dashboard
           } else {
             window.location.reload(); // Reload the page to update the main page
           }
@@ -136,7 +136,7 @@ export default function AddScrimmage({ isOpen, onClose, onScrimmageAdded }: AddS
       }
     } catch (err) {
       console.error('Unexpected error:', err);
-      setError('An unexpected error occurred while adding the scrimmage');
+      setError('An unexpected error occurred while adding the event');
     } finally {
       setIsLoading(false);
     }
@@ -144,7 +144,7 @@ export default function AddScrimmage({ isOpen, onClose, onScrimmageAdded }: AddS
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
-      handleAddScrimmage();
+      handleAddEvent();
     }
   };
 
@@ -158,7 +158,7 @@ export default function AddScrimmage({ isOpen, onClose, onScrimmageAdded }: AddS
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
           <div className="p-6">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-bold text-gray-900 dark:text-white">Add New Scrimmage</h2>
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white">Add New Event</h2>
               <button
                 onClick={closeModal}
                 className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
@@ -186,80 +186,85 @@ export default function AddScrimmage({ isOpen, onClose, onScrimmageAdded }: AddS
             {/* Form */}
             <div className="space-y-4">
               <div>
-                <label htmlFor="scrimmageName" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Scrimmage Name *
+                <label htmlFor="eventName" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Event Name *
                 </label>
                 <input
-                  id="scrimmageName"
+                  id="eventName"
                   type="text"
-                  placeholder="Enter scrimmage name"
+                  placeholder="Enter event name"
                   value={title}
-                  onChange={(e) => setScrimmageName(e.target.value)}
+                  onChange={(e) => setTitle(e.target.value)}
                   onKeyPress={handleKeyPress}
                   disabled={isLoading}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 disabled:opacity-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                 />
               </div>
               
               <div>
-                <label htmlFor="scrimmageDescription" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label htmlFor="eventDescription" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Description *
                 </label>
                 <textarea
-                  id="scrimmageDescription"
-                  placeholder="Enter scrimmage description"
-                  value={scrimmage_description}
+                  id="eventDescription"
+                  placeholder="Enter event description"
+                  value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   onKeyPress={handleKeyPress}
                   disabled={isLoading}
                   rows={3}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 disabled:opacity-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                 />
               </div>
 
               <div>
-                <label htmlFor="scrimmageDate" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label htmlFor="eventType" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Event Type *
+                </label>
+                <select
+                  id="eventType"
+                  value={eventType}
+                  onChange={(e) => setEventType(e.target.value)}
+                  disabled={isLoading}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 disabled:opacity-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                >
+                  <option value="workshop">Workshop</option>
+                  <option value="competition">Competition</option>
+                  <option value="lecture">Lecture</option>
+                  <option value="hackathon">Hackathon</option>
+                  <option value="exhibition">Exhibition</option>
+                  <option value="networking">Networking</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+
+              <div>
+                <label htmlFor="eventDate" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Date *
                 </label>
                 <input
-                  id="scrimmageDate"
+                  id="eventDate"
                   type="date"
-                  value={scrimmage_date}
-                  onChange={(e) => setDate(e.target.value)}
+                  value={eventTime}
+                  onChange={(e) => setEventTime(e.target.value)}
                   disabled={isLoading}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 disabled:opacity-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                 />
               </div>
 
               <div>
-                <label htmlFor="scrimmageLocation" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Location *
+                <label htmlFor="eventLocation" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Location
                 </label>
                 <input
-                  id="scrimmageLocation"
+                  id="eventLocation"
                   type="text"
-                  placeholder="Enter scrimmage location"
+                  placeholder="Enter event location (optional)"
                   value={location}
                   onChange={(e) => setLocation(e.target.value)}
                   onKeyPress={handleKeyPress}
                   disabled={isLoading}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                />
-              </div>
-
-              <div>
-                <label htmlFor="scrimmageNumberTeams" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Number of Teams
-                </label>
-                <input
-                  id="scrimmageNumberTeams"
-                  type="number"
-                  min="0"
-                  placeholder="Enter number of teams"
-                  value={number_teams}
-                  onChange={(e) => setNumberTeams(e.target.value)}
-                  disabled={isLoading}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 disabled:opacity-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                 />
               </div>
               
@@ -272,11 +277,11 @@ export default function AddScrimmage({ isOpen, onClose, onScrimmageAdded }: AddS
                   Cancel
                 </button>
                 <button 
-                  onClick={handleAddScrimmage}
-                  disabled={isLoading || !title.trim() || !scrimmage_description.trim() || !scrimmage_date.trim() || !location.trim()}
-                  className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  onClick={handleAddEvent}
+                  disabled={isLoading || !title.trim() || !description.trim() || !eventTime.trim()}
+                  className="flex-1 bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {isLoading ? 'Adding...' : 'Add Scrimmage'}
+                  {isLoading ? 'Adding...' : 'Add Event'}
                 </button>
               </div>
             </div>
@@ -292,21 +297,21 @@ export default function AddScrimmage({ isOpen, onClose, onScrimmageAdded }: AddS
       {/* Authentication Status */}
       {!currentUserId && (
         <div className="mb-3 text-sm text-gray-600 dark:text-gray-400">
-          Please log in to create scrimmages
+          Please log in to create events
         </div>
       )}
       
-      {/* Add Scrimmage Button */}
+      {/* Add Event Button */}
       <button
         onClick={openModal}
         disabled={!currentUserId}
         className={`py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors ${
           currentUserId 
-            ? 'bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500' 
+            ? 'bg-green-600 text-white hover:bg-green-700 focus:ring-green-500' 
             : 'bg-gray-400 text-gray-200 cursor-not-allowed'
         }`}
       >
-        {currentUserId ? 'Add Scrimmage' : 'Login to Add Scrimmage'}
+        {currentUserId ? 'Add Event' : 'Login to Add Event'}
       </button>
 
       {/* Modal */}
@@ -315,7 +320,7 @@ export default function AddScrimmage({ isOpen, onClose, onScrimmageAdded }: AddS
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
             <div className="p-6">
               <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-bold text-gray-900 dark:text-white">Add New Scrimmage</h2>
+                <h2 className="text-xl font-bold text-gray-900 dark:text-white">Add New Event</h2>
                 <button
                   onClick={closeModal}
                   className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
@@ -343,80 +348,85 @@ export default function AddScrimmage({ isOpen, onClose, onScrimmageAdded }: AddS
               {/* Form */}
               <div className="space-y-4">
                 <div>
-                  <label htmlFor="scrimmageName" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Scrimmage Name *
+                  <label htmlFor="eventName" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Event Name *
                   </label>
                   <input
-                    id="scrimmageName"
+                    id="eventName"
                     type="text"
-                    placeholder="Enter scrimmage name"
+                    placeholder="Enter event name"
                     value={title}
-                    onChange={(e) => setScrimmageName(e.target.value)}
+                    onChange={(e) => setTitle(e.target.value)}
                     onKeyPress={handleKeyPress}
                     disabled={isLoading}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 disabled:opacity-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                   />
                 </div>
                 
                 <div>
-                  <label htmlFor="scrimmageDescription" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label htmlFor="eventDescription" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Description *
                   </label>
                   <textarea
-                    id="scrimmageDescription"
-                    placeholder="Enter scrimmage description"
-                    value={scrimmage_description}
+                    id="eventDescription"
+                    placeholder="Enter event description"
+                    value={description}
                     onChange={(e) => setDescription(e.target.value)}
                     onKeyPress={handleKeyPress}
                     disabled={isLoading}
                     rows={3}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 disabled:opacity-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                   />
                 </div>
 
                 <div>
-                  <label htmlFor="scrimmageDate" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label htmlFor="eventType" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Event Type *
+                  </label>
+                  <select
+                    id="eventType"
+                    value={eventType}
+                    onChange={(e) => setEventType(e.target.value)}
+                    disabled={isLoading}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 disabled:opacity-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                  >
+                    <option value="workshop">Workshop</option>
+                    <option value="competition">Competition</option>
+                    <option value="lecture">Lecture</option>
+                    <option value="hackathon">Hackathon</option>
+                    <option value="exhibition">Exhibition</option>
+                    <option value="networking">Networking</option>
+                    <option value="other">Other</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label htmlFor="eventDate" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Date *
                   </label>
                   <input
-                    id="scrimmageDate"
+                    id="eventDate"
                     type="date"
-                    value={scrimmage_date}
-                    onChange={(e) => setDate(e.target.value)}
+                    value={eventTime}
+                    onChange={(e) => setEventTime(e.target.value)}
                     disabled={isLoading}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 disabled:opacity-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                   />
                 </div>
 
                 <div>
-                  <label htmlFor="scrimmageLocation" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Location *
+                  <label htmlFor="eventLocation" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Location
                   </label>
                   <input
-                    id="scrimmageLocation"
+                    id="eventLocation"
                     type="text"
-                    placeholder="Enter scrimmage location"
+                    placeholder="Enter event location (optional)"
                     value={location}
                     onChange={(e) => setLocation(e.target.value)}
                     onKeyPress={handleKeyPress}
                     disabled={isLoading}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                  />
-                </div>
-
-                <div>
-                  <label htmlFor="scrimmageNumberTeams" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Number of Teams
-                  </label>
-                  <input
-                    id="scrimmageNumberTeams"
-                    type="number"
-                    min="0"
-                    placeholder="Enter number of teams"
-                    value={number_teams}
-                    onChange={(e) => setNumberTeams(e.target.value)}
-                    disabled={isLoading}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 disabled:opacity-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                   />
                 </div>
                 
@@ -429,11 +439,11 @@ export default function AddScrimmage({ isOpen, onClose, onScrimmageAdded }: AddS
                     Cancel
                   </button>
                   <button 
-                    onClick={handleAddScrimmage}
-                    disabled={isLoading || !title.trim() || !scrimmage_description.trim() || !scrimmage_date.trim() || !location.trim()}
-                    className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                    onClick={handleAddEvent}
+                    disabled={isLoading || !title.trim() || !description.trim() || !eventTime.trim()}
+                    className="flex-1 bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {isLoading ? 'Adding...' : 'Add Scrimmage'}
+                    {isLoading ? 'Adding...' : 'Add Event'}
                   </button>
                 </div>
               </div>
