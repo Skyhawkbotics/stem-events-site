@@ -19,7 +19,7 @@ export default function Home() {
           <Hero />
           
           {/* Subtitle section */}
-          <div className="text-center max-w-2xl mx-auto -mt-2">
+          <div className="text-center max-w-2xl mx-auto -mt-12">
             <p className="text-lg text-muted-foreground leading-relaxed">
               Are you looking for a STEM event near you? Are you a FIRST Tech Challenge team looking for events to attend? Discover scrimmages, science fairs, and more STEM events happening near you. Connect with like-minded enthusiasts and never miss an opportunity.
             </p>
@@ -29,7 +29,11 @@ export default function Home() {
             <NextEvent />
           </div>
         </div>
-
+        <Link href="/scrimmage"><button
+          className="bg-primary text-primary-foreground py-2 px-4 rounded-md hover:bg-primary/80 focus:outline-primary-foreground focus:ring-2 focus:ring-primary focus:ring-offset-2 transition-colors border border-primary-foreground"
+        >
+          View All Scrimmages
+      </button></Link>
         <Footer />
       </div>
     </main>
